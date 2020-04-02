@@ -27,10 +27,13 @@ class TestA(unittest.TestCase):
     def test_init_all_rand(self):
         s = 5
         e = 2
-        a = A(s, e, "none")
+        a = A(s, e, "rand")
         self.assertEqual(a.e, e)
         self.assertEqual(a.s, s)
         self.assertEqual(a.maxval, 1 + 4 + 9 + 16)
+        self.assertEqual(a.vec.length(), s - 1)
+        self.assertLessEqual(a.val, 1 + 4 + 9 + 16)
+        self.assertGreaterEqual(a.val, 0)
 
     def test_init_raises_ValueError(self):  # noqa: N802
         s = 5
