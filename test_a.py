@@ -270,3 +270,81 @@ class TestA(unittest.TestCase):
         a = A(s, e)
         self.assertEqual(a.get_change(0), -1)
         self.assertEqual(a.get_change(1), -2)
+
+    def test_get_best_bit__pebbif(self):
+        """
+        positive_exactly_best_bit_is_free
+        """
+        s = 5
+        e = 2
+        for test_bit in range(s - 1):
+            a = A(s, e, "all")
+            a.flip_bit(test_bit)
+            actual = a.get_best_bit(((test_bit + 1)**e))
+            expected = test_bit
+            self.assertEqual(actual, expected)
+
+    def test_get_best_bit__nebbif(self):
+        """
+        negative_exactly_best_bit_is_free
+        """
+        s = 5
+        e = 2
+        for test_bit in range(s - 1):
+            a = A(s, e, "none")
+            a.flip_bit(test_bit)
+            actual = a.get_best_bit(-((test_bit + 1)**e))
+            expected = test_bit
+            self.assertEqual(actual, expected)
+
+    def test_get_best_bit__pllbbif(self):
+        """
+        positive_little_lower_best_bit_is_free
+        """
+        s = 5
+        e = 2
+        for test_bit in range(s - 1):
+            a = A(s, e, "all")
+            a.flip_bit(test_bit)
+            actual = a.get_best_bit(((test_bit + 1)**e) - 1)
+            expected = test_bit
+            self.assertEqual(actual, expected)
+
+    def test_get_best_bit__nllbbif(self):
+        """
+        negative_little_lower_best_bit_is_free
+        """
+        s = 5
+        e = 2
+        for test_bit in range(s - 1):
+            a = A(s, e, "none")
+            a.flip_bit(test_bit)
+            actual = a.get_best_bit(-((test_bit + 1)**e) - 1)
+            expected = test_bit
+            self.assertEqual(actual, expected)
+
+    def test_get_best_bit__pnebbif(self):
+        """
+        positive_not_exactly_best_bit_is_free
+        """
+        s = 5
+        e = 2
+        for test_bit in range(s - 1):
+            a = A(s, e, "all")
+            expected = test_bit + (1 if test_bit < 3 else -1)
+            a.flip_bit(expected)
+            actual = a.get_best_bit(((test_bit + 1)**e))
+            self.assertEqual(actual, expected)
+
+    def test_get_best_bit__nnebbif(self):
+        """
+        negative_not_exactly_best_bit_is_free
+        """
+        s = 5
+        e = 2
+        for test_bit in range(s - 1):
+            a = A(s, e, "none")
+            expected = test_bit + (1 if test_bit < 3 else -1)
+            a.flip_bit(expected)
+            actual = a.get_best_bit(-((test_bit + 1)**e))
+            self.assertEqual(actual, expected)

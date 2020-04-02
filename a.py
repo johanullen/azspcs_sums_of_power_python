@@ -104,21 +104,65 @@ class A():
     def get_pos_value(self, pos):
         return pos ** self.e
 
-    def get_most_impactful_pos(self):
-        diff = self.diff()
+    def get_best_bit(self, diff):
         sign = utils.intsign(diff)
-        pos_set = 0 if sign == 1 else 1
-        root = abs(diff) ** (1 / self.e)
-        closest_pos = int(root + 0.5)
+
+        # pos_set represents if a bit should be set or unset
+        # 0 is we want to change a bit to 0
+        # 1 is we want to change a bit to 1
+        # changing a bit to 0 corresponds to decreasing the signed difference
+        # changing a bit to 1 corresponds to increasing the signed difference
+        pos_set = 1 if sign == 1 else 0
+
+        # -1 because the value of bit x is (x+1)**e
+        root = abs(diff) ** (1 / self.e) - 1
+        closest_pos = int(root + sign * 0.5)
+
+        if self.vec.count_bits() > self.s // 2 and pos_set:
+            # if there are more set bits than unset bits, and we want to change a bit from 1 to 0
+            # then we want to travsere to lower values
+            # because we want to remain on this side of the diff
+            change_direction = -1
+        elif self.vec.count_bits() > self.s // 2 and pos_set:
+            # if there are more set unset bits than set bits, and we want to change a bit from 0 to 1
+            # then we want to travsere to lower values
+            # because we want to remain on this side of the diff
+            change_direction = -1
+        else:
+            # otherwise we want to traverse to higher bits
+            # because we want to change the sign of diff
+            change_direction = 1
+
         if closest_pos >= self.s - 1:
             pos = self.s - 2
         elif closest_pos < 0:
             pos = 0
         else:
             pos = closest_pos
+
+        # print("diff", diff)
+        # print("sign", sign)
+        # print("pos_set", pos_set)
+        # print("root", root)
+        # print("closest_pos", closest_pos)
+        # print("change_direction", change_direction)
+        # print("pos", pos)
+        # print("self.vec[pos]", self.vec[pos])
         while self.vec[pos] == pos_set:
-            # todo change up if many are pos_set, otherwise change down
-            pass
+            # print(f"changing pos from {pos} to {pos + change_direction}")
+            pos += change_direction
+            if pos >= self.s:
+                # print(f"changing pos from {pos} to {0}")
+                pos = 0
+            if pos < 0:
+                # print(f"changing pos from {pos} to {self.s - 2}")
+                pos = self.s - 2
+        return pos
+
+    def get_most_impactful_bit(self):
+        diff = self.diff()
+        return self.get_best_bit(diff)
+
 
 
 if __name__ == "__main__":
