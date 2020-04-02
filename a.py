@@ -1,22 +1,22 @@
 from BitVector import BitVector
-
+import random
 
 class A():
 
     def __init__(self, s=0, e=0, initial="all"):
-
         self.e = e
         self.s = s
 
         if initial.lower() == "all":
-            self.vec = BitVector(size=self.s-1)
+            self.vec = BitVector(size=self.s - 1)
             self.vec.reset(1)
         elif initial.lower() == "none":
-            self.vec = BitVector(size=self.s-1)
+            self.vec = BitVector(size=self.s - 1)
             self.vec.reset(0)
         elif initial.lower() == "rand":
-            self.vec = BitVector(size=self.s-1)
-            self.vec = self.vec.gen_random_bits(self.s-1)
+            self.vec = BitVector(size=self.s - 1)
+            for i in range(0, self.s - 1):
+                self.vec[i] = random.randint(0, 1)
         else:
             raise ValueError(f'{initial}.lower() can be one of ["all", "none", "rand"]')
         self.maxval = sum(x**self.e for x in range(self.s))
@@ -101,3 +101,8 @@ class A():
 
     def get_pos_value(self, pos):
         return pos ** self.e
+
+if __name__ == "__main__":
+    for _ in range(20):
+        a = A(4, 2, "rand")
+        print(a)

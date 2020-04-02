@@ -24,7 +24,7 @@ class TestA(unittest.TestCase):
         self.assertEqual(a.val, 0)
         self.assertEqual(a.vec, BitVector(bitlist=[0] * (s - 1)))
 
-    def test_init_all_rand(self):
+    def test_init_all_rand_s5_e2(self):
         s = 5
         e = 2
         a = A(s, e, "rand")
@@ -33,6 +33,17 @@ class TestA(unittest.TestCase):
         self.assertEqual(a.maxval, 1 + 4 + 9 + 16)
         self.assertEqual(a.vec.length(), s - 1)
         self.assertLessEqual(a.val, 1 + 4 + 9 + 16)
+        self.assertGreaterEqual(a.val, 0)
+
+    def test_init_all_rand_s3_e1(self):
+        s = 3
+        e = 1
+        a = A(s, e, "rand")
+        self.assertEqual(a.e, e)
+        self.assertEqual(a.s, s)
+        self.assertEqual(a.maxval, 1 + 2)
+        self.assertEqual(a.vec.length(), s - 1)
+        self.assertLessEqual(a.val, 1 + 2)
         self.assertGreaterEqual(a.val, 0)
 
     def test_init_raises_ValueError(self):  # noqa: N802
