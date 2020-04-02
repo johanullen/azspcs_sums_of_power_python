@@ -1,5 +1,7 @@
 from BitVector import BitVector
 import random
+import utils
+
 
 class A():
 
@@ -19,7 +21,7 @@ class A():
                 self.vec[i] = random.randint(0, 1)
         else:
             raise ValueError(f'{initial}.lower() can be one of ["all", "none", "rand"]')
-        self.maxval = sum(x**self.e for x in range(self.s))
+        self.maxval = sum(x**self.e for x in range(1, self.s))
         self.val = self.sum()
 
     def set_zero(self):
@@ -56,9 +58,9 @@ class A():
 
     def flip_bit(self, pos):
         if pos < 0:
-            raise OverflowError(f"trying to change bit {pos} < 0 ({pos**self.e} < {0})")
+            raise OverflowError(f"trying to change bit {pos} < 0 ({(pos + 1) ** self.e} < {0})")
         elif pos >= self.s - 1:
-            raise OverflowError(f"trying to change bit {pos} >= {self.s-1} ({pos**self.e} > self.maxval)")
+            raise OverflowError(f"trying to change bit {pos} >= {self.s-1} ({(pos + 1) ** self.e} > {self.maxval})")
         self.val += -((pos + 1)**self.e) if self.vec[pos] else (pos + 1)**self.e
         self.vec[pos] = 0 if self.vec[pos] else 1
         return -((pos + 1)**self.e) if self.vec[pos] else (pos + 1)**self.e
@@ -94,13 +96,30 @@ class A():
 
     def is_set(self, pos):
         if pos < 0:
-            raise OverflowError(f"trying to change bit {pos} < 0 ({pos**self.e} < {0})")
+            raise OverflowError(f"trying to read bit {pos} < 0 ({(pos + 1) ** self.e} < {0})")
         elif pos >= self.s - 1:
-            raise OverflowError(f"trying to change bit {pos} >= {self.s-1} ({pos**self.e} > self.maxval)")
+            raise OverflowError(f"trying to read bit {pos} >= {self.s-1} ({(pos + 1) ** self.e} > {self.maxval})")
         return False if self.vec[pos] else True
 
     def get_pos_value(self, pos):
         return pos ** self.e
+
+    def get_most_impactful_pos(self):
+        diff = self.diff()
+        sign = utils.intsign(diff)
+        pos_set = 0 if sign == 1 else 1
+        root = abs(diff) ** (1 / self.e)
+        closest_pos = int(root + 0.5)
+        if closest_pos >= self.s - 1:
+            pos = self.s - 2
+        elif closest_pos < 0:
+            pos = 0
+        else:
+            pos = closest_pos
+        while self.vec[pos] == pos_set:
+            # todo change up if many are pos_set, otherwise change down
+            pass
+
 
 if __name__ == "__main__":
     for _ in range(20):
