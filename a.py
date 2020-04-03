@@ -11,14 +11,15 @@ class A():
 
         if initial.lower() == "all":
             self.vec = BitVector(size=self.s - 1)
-            self.vec.reset(1)
+            self.set_one()
         elif initial.lower() == "none":
             self.vec = BitVector(size=self.s - 1)
-            self.vec.reset(0)
+            self.set_zero()
         elif initial.lower() == "rand":
             self.vec = BitVector(size=self.s - 1)
-            for i in range(0, self.s - 1):
-                self.vec[i] = random.randint(0, 1)
+            # for i in range(0, self.s - 1):
+            #     self.vec[i] = random.randint(0, 1)
+            self.set_random()
         else:
             raise ValueError(f'{initial}.lower() can be one of ["all", "none", "rand"]')
         self.maxval = sum(x**self.e for x in range(1, self.s))
@@ -27,6 +28,16 @@ class A():
     def set_zero(self):
         self.vec.reset(0)
         self.val = 0
+
+    def set_one(self):
+        self.vec.reset(1)
+        self.val = self.sum()
+
+    def set_random(self):
+        for i in range(0, self.s - 1):
+            self.vec[i] = random.randint(0, 1)
+        self.val = self.sum()
+
 
     def sum(self):
         sum_a = 0
