@@ -162,7 +162,7 @@ class A():
         while self.vec[pos] == pos_set:
             # print(f"changing pos from {pos} to {pos + change_direction}")
             pos += change_direction
-            if pos >= self.s:
+            if pos >= self.s - 1:
                 # print(f"changing pos from {pos} to {0}")
                 pos = 0
             if pos < 0:
