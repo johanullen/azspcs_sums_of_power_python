@@ -348,3 +348,19 @@ class TestA(unittest.TestCase):
             a.flip_bit(expected)
             actual = a.get_best_bit(-((test_bit + 1)**e))
             self.assertEqual(actual, expected)
+
+    def test_flip_all(self):
+        s = 5
+        e = 2
+        a = A(s, e)
+        self.assertEqual(a.vec, BitVector(bitlist=[1, 1, 1, 1]))
+        self.assertEqual(a.val, 1 + 4 + 9 + 16)
+        a.flip_all()
+        self.assertEqual(a.vec, BitVector(bitlist=[0, 0, 0, 0]))
+        self.assertEqual(a.val, 0)
+        a.flip_bit(1)
+        self.assertEqual(a.vec, BitVector(bitlist=[0, 1, 0, 0]))
+        self.assertEqual(a.val, 4)
+        a.flip_all()
+        self.assertEqual(a.vec, BitVector(bitlist=[1, 0, 1, 1]))
+        self.assertEqual(a.val, 1 + 9 + 16)

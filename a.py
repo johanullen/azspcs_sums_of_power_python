@@ -76,6 +76,10 @@ class A():
         self.vec[pos] = 0 if self.vec[pos] else 1
         return -((pos + 1)**self.e) if self.vec[pos] else (pos + 1)**self.e
 
+    def flip_all(self):
+        for pos in range(self.s-1):
+            self.flip_bit(pos)
+
     def add_one(self):
         for i in range(self.s):
             change = self.flip_bit(i)
