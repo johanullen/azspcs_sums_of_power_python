@@ -34,6 +34,7 @@ def greedy(s, e, initial="all"):
 
     history = {a.val}
     i = 0
+    flip_or_rand = 0
     while smallest != 0:
         try:
             pos = a.get_most_impactful_bit()
@@ -41,11 +42,14 @@ def greedy(s, e, initial="all"):
             # need to check for loops
             tried = set()
             if (a.val + pos_sign * pos ** a.e) in history:
-                a.set_random()
+                flip_or_rand += 1
+                if flip_or_rand % 1:
+                    a.flip_all()
+                else:
+                    a.set_random()
+                    history = {a.val}
                 pos = a.get_most_impactful_bit()
                 pos_sign = -1 if a.is_set(pos) else 1
-                history = {a.val}
-
 
             # if i % 2 == 0:
             history.add(a.val + pos_sign * pos ** a.e)
@@ -64,7 +68,7 @@ def greedy(s, e, initial="all"):
 
         diff = a.diff()
         if abs(diff) < abs(smallest) or diff == 0:
-            print(i, f"{(time() - start):.4f}s", f"|| {s**e}-{a.val}={diff} => pos={pos} ||", a, flush=True)
+            # print(i, f"{(time() - start):.4f}s", f"|| {s**e}-{a.val}={diff} => pos={pos} ||", a, flush=True)
             smallest = diff
             if diff == 0:
                 break
@@ -72,16 +76,16 @@ def greedy(s, e, initial="all"):
 
     timing = time() - start
     print(f"found smallest={smallest} after {i:10.2e} iterations and {timing:.3f}s", flush=True)
-    # print("*" * 40)
     return i, timing, a
 
 if __name__ == "__main__":
-    # [3,5,6,15,12,25,40,84,47,63,68,81],
-    # for e, s in enumerate([3,5,6,15,12,25,40,84,47,63,68,81], 1):  # s>=6 are too big
+    # [3,5,6,15,12,25,40,84,47,63,68,81,102,95,104],
+    # for e, s in enumerate([3,5,6,15,12], 1):  # s>=6 are too big
     #     brute_force(s, e)
     res = list()
-    for e, s in enumerate([3,5,6,15,12,25,40,84,47,63,68], 1):
-        if e in set(range(1, 11)):
+    for e, s in enumerate([3,5,6,15,12,25,40,84,47,63,68,81,102,95,104], 1):
+        # s > 70? is too big
+        if s > 41:
             continue
         try:
             res.append(greedy(s, e, "all"))
