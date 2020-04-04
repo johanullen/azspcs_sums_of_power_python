@@ -13,6 +13,7 @@ class TestA(unittest.TestCase):
         self.assertEqual(a.maxval, 1 + 4 + 9 + 16)
         self.assertEqual(a.val, 1 + 4 + 9 + 16)
         self.assertEqual(a.vec, BitVector(intVal=2**(s - 1) - 1))
+        self.assertEqual(a.bits_set, s - 1)
 
     def test_init_all_zeros(self):
         s = 5
@@ -23,6 +24,7 @@ class TestA(unittest.TestCase):
         self.assertEqual(a.maxval, 1 + 4 + 9 + 16)
         self.assertEqual(a.val, 0)
         self.assertEqual(a.vec, BitVector(bitlist=[0] * (s - 1)))
+        self.assertEqual(a.bits_set, 0)
 
     def test_init_all_rand_s5_e2(self):
         s = 5
@@ -34,6 +36,7 @@ class TestA(unittest.TestCase):
         self.assertEqual(a.vec.length(), s - 1)
         self.assertLessEqual(a.val, 1 + 4 + 9 + 16)
         self.assertGreaterEqual(a.val, 0)
+        self.assertEqual(a.bits_set, sum(a.vec))
 
     def test_init_all_rand_s3_e1(self):
         s = 3
@@ -103,6 +106,7 @@ class TestA(unittest.TestCase):
         self.assertEqual(a.val, 1 + 4 + 9 + 16)
         a.set_zero()
         self.assertEqual(a.val, 0)
+        self.assertEqual(a.bits_set, 0)
 
     def test_set_zero_s4_e4(self):
         s = 4
@@ -111,19 +115,23 @@ class TestA(unittest.TestCase):
         self.assertEqual(a.val, 1 + 16 + 81)
         a.set_zero()
         self.assertEqual(a.val, 0)
+        self.assertEqual(a.bits_set, 0)
 
     def test_flip_bit_s5_e2(self):
         s = 5
         e = 2
         a = A(s, e)
         self.assertEqual(a.vec, BitVector(bitlist=[1, 1, 1, 1]))
+        self.assertEqual(a.bits_set, 4)
         self.assertEqual(a.val, 1 + 4 + 9 + 16)
         a.flip_bit(0)
         self.assertEqual(a.vec, BitVector(bitlist=[0, 1, 1, 1]))
         self.assertEqual(a.val, 4 + 9 + 16)
+        self.assertEqual(a.bits_set, 3)
         a.flip_bit(3)
         self.assertEqual(a.vec, BitVector(bitlist=[0, 1, 1, 0]))
         self.assertEqual(a.val, 4 + 9)
+        self.assertEqual(a.bits_set, 2)
         with self.assertRaises(OverflowError):
             a.flip_bit(4)
         with self.assertRaises(OverflowError):
@@ -355,12 +363,16 @@ class TestA(unittest.TestCase):
         a = A(s, e)
         self.assertEqual(a.vec, BitVector(bitlist=[1, 1, 1, 1]))
         self.assertEqual(a.val, 1 + 4 + 9 + 16)
+        self.assertEqual(a.bits_set, 4)
         a.flip_all()
         self.assertEqual(a.vec, BitVector(bitlist=[0, 0, 0, 0]))
         self.assertEqual(a.val, 0)
+        self.assertEqual(a.bits_set, 0)
         a.flip_bit(1)
         self.assertEqual(a.vec, BitVector(bitlist=[0, 1, 0, 0]))
         self.assertEqual(a.val, 4)
+        self.assertEqual(a.bits_set, 1)
         a.flip_all()
         self.assertEqual(a.vec, BitVector(bitlist=[1, 0, 1, 1]))
         self.assertEqual(a.val, 1 + 9 + 16)
+        self.assertEqual(a.bits_set, 3)

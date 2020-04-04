@@ -1,6 +1,7 @@
 from BitVector import BitVector
 import random
 import utils
+from functools import reduce
 
 
 class A():
@@ -22,21 +23,25 @@ class A():
             self.set_random()
         else:
             raise ValueError(f'{initial}.lower() can be one of ["all", "none", "rand"]')
-        self.maxval = sum(x**self.e for x in range(1, self.s))
+        self.a = [x**self.e for x in range(1, self.s)]
+        self.maxval = sum(self.a)
         self.val = self.sum()
 
     def set_zero(self):
         self.vec.reset(0)
         self.val = 0
+        self.bits_set = 0
 
     def set_one(self):
         self.vec.reset(1)
         self.val = self.sum()
+        self.bits_set = self.s - 1
 
     def set_random(self):
         for i in range(0, self.s - 1):
             self.vec[i] = random.randint(0, 1)
         self.val = self.sum()
+        self.bits_set = self.vec.count_bits()
 
 
     def sum(self):
@@ -72,9 +77,20 @@ class A():
             raise OverflowError(f"trying to change bit {pos} < 0 ({(pos + 1) ** self.e} < {0})")
         elif pos >= self.s - 1:
             raise OverflowError(f"trying to change bit {pos} >= {self.s-1} ({(pos + 1) ** self.e} > {self.maxval})")
-        self.val += -((pos + 1)**self.e) if self.vec[pos] else (pos + 1)**self.e
-        self.vec[pos] = 0 if self.vec[pos] else 1
-        return -((pos + 1)**self.e) if self.vec[pos] else (pos + 1)**self.e
+        if self.vec[pos]:
+            self.val -= self.a[pos]
+            self.vec[pos] = 0
+            self.bits_set -= 1
+            return -self.a[pos]
+        else:
+            self.val += self.a[pos]
+            self.vec[pos] = 1
+            self.bits_set += 1
+            return self.a[pos]
+
+        # self.val += -(self.a[pos]) if self.vec[pos] else (pos + 1)**self.e
+        # self.vec[pos] = 0 if self.vec[pos] else 1
+        # return -(self.a[pos]) if self.vec[pos] else (pos + 1)**self.e
 
     def flip_all(self):
         for pos in range(self.s-1):
@@ -106,7 +122,7 @@ class A():
 
     def get_change(self, pos):
         change_sign = -1 if self.vec[pos] else 1
-        change_value = (pos + 1) ** self.e
+        change_value = self.a[pos]
         return change_sign * change_value
 
     def is_set(self, pos):
@@ -122,17 +138,21 @@ class A():
     def get_best_bit(self, diff):
         sign = utils.intsign(diff)
 
-        # pos_set represents if a bit should be set or unset
-        # 0 is we want to change a bit to 0
-        # 1 is we want to change a bit to 1
-        # changing a bit to 0 corresponds to decreasing the signed difference
-        # changing a bit to 1 corresponds to increasing the signed difference
-        pos_set = 1 if sign == 1 else 0
+        # pos_set represents if a bit is set or unset
+        # 0 is we want to find a bit that is 0
+        # 1 is we want to find a bit that is 1
+        # finding a bit that is 0 corresponds to increasing the signed difference
+        # finding a bit that is 1 corresponds to decreasing the signed difference
+        pos_set = 0 if sign == 1 else 1
 
-        # -1 because the value of bit x is (x+1)**e
-        root = abs(diff) ** (1 / self.e) - 1
-        closest_pos = int(root + sign * 0.5)
+        diff = sign * diff
+        a_diffs = map(lambda x: (abs(x[1]-diff), x[0]), filter(lambda x: self.vec[x[0]] == pos_set, enumerate(self.a)))
+        min_diff = min(a_diffs)
+        pos = min_diff[1]
+        return pos
 
+    # only used with old _get_best_bit
+    def _closest_pos_available(self, closest_pos, pos_set):
         if self.vec.count_bits() > self.s // 2 and pos_set:
             # if there are more set bits than unset bits, and we want to change a bit from 1 to 0
             # then we want to travsere to lower values
@@ -173,6 +193,22 @@ class A():
                 # print(f"changing pos from {pos} to {self.s - 2}")
                 pos = self.s - 2
         return pos
+
+    # obsolete, but is the new version really better?
+    def _get_best_bit(self, diff):
+        sign = utils.intsign(diff)
+
+        # pos_set represents if a bit should be set or unset
+        # 0 is we want to change a bit to 0
+        # 1 is we want to change a bit to 1
+        # changing a bit to 0 corresponds to decreasing the signed difference
+        # changing a bit to 1 corresponds to increasing the signed difference
+        pos_set = 1 if sign == 1 else 0
+
+        # -1 because the value of bit x is (x+1)**e
+        root = abs(diff) ** (1 / self.e) - 1
+        closest_pos = int(root + sign * 0.5)
+        return self._closest_pos_available(closest_pos, pos_set)
 
     def get_most_impactful_bit(self):
         diff = self.diff()
